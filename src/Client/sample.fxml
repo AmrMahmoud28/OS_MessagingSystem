@@ -80,7 +80,7 @@
                         </Label>
                         <ImageView fx:id="proImage" fitHeight="84.0" fitWidth="83.0" layoutX="227.0" layoutY="9.0" pickOnBounds="true" preserveRatio="true">
                             <image>
-                                <Image url="@../icons/user.png" />
+                                <Image url="@../icons/processImg.png" />
                             </image>
                         </ImageView>
                     </children>

@@ -214,7 +214,7 @@ public class Controller extends Thread implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         showProPic.setStroke(Color.valueOf("#90a4ae"));
         Image image;
-        image = new Image("icons/user.png", false);
+        image = new Image("icons/processImg.png", false);
         showProPic.setFill(new ImagePattern(image));
         clientName.setText("Process " );
         connectSocket();
