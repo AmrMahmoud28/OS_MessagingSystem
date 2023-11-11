@@ -56,7 +56,7 @@ public class Room extends Thread implements Initializable {
     public Circle showProPic;
     public TextField keyField;
     public boolean toggleChat = false, toggleProfile = false;
-    public Label freeMemory;
+    public Label memoryUsage;
     public Label cpuUsage;
     public Label activeThread;
 
@@ -149,8 +149,8 @@ public class Room extends Thread implements Initializable {
         startTime.setOpacity(1);
         totalMemory.setText(getTotalMemory());
         totalMemory.setOpacity(1);
-        freeMemory.setText(getFreeMemory());
-        freeMemory.setOpacity(1);
+        memoryUsage.setText(getMemoryUsage());
+        memoryUsage.setOpacity(1);
         cpuUsage.setText(getCpuUsage());
         cpuUsage.setOpacity(1);
         activeThread.setText(getActiveThread());
@@ -177,10 +177,11 @@ public class Room extends Thread implements Initializable {
         return totalMemory + " MB";
     }
 
-    private String getFreeMemory(){
+    private String getMemoryUsage(){
         Runtime runtime = Runtime.getRuntime();
-        long freeMemory = runtime.freeMemory() / (1024 * 1024);
-        return freeMemory + " MB";
+        long totalMemory = runtime.totalMemory();
+        long freeMemory = runtime.freeMemory();
+        return ((totalMemory - freeMemory) / (1024 * 1024)) + " MB";
     }
 
     private String getCpuUsage(){

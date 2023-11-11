@@ -33,7 +33,7 @@
                                 <Font name="Arial" size="19.0" />
                             </font>
                         </Label>
-                        <Label layoutX="8.0" layoutY="213.0" text="Free Memory:" textFill="#ebe7e7">
+                        <Label layoutX="8.0" layoutY="213.0" text="Memory Usage:" textFill="#ebe7e7">
                             <font>
                                 <Font name="Arial" size="19.0" />
                             </font>
@@ -63,7 +63,7 @@
                                 <Font size="19.0" />
                             </font>
                         </Label>
-                        <Label fx:id="freeMemory" layoutX="135.0" layoutY="213.0" textFill="#f2f2f2">
+                        <Label fx:id="memoryUsage" layoutX="150.0" layoutY="213.0" textFill="#f2f2f2">
                             <font>
                                 <Font size="19.0" />
                             </font>
