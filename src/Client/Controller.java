@@ -1,238 +1,222 @@
 package Client;
 
+import java.lang.management.ManagementFactory;
+import java.lang.management.OperatingSystemMXBean;
+import java.lang.management.RuntimeMXBean;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import animatefx.animation.FadeIn;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
+import javafx.fxml.Initializable;
+import javafx.geometry.NodeOrientation;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
-import javafx.stage.Stage;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Random;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.ImagePattern;
+import javafx.scene.shape.Circle;
 
+import java.io.*;
+import java.net.Socket;
+import java.net.URL;
+import java.util.ResourceBundle;
 
-public class Controller {
+public class Controller extends Thread implements Initializable {
     @FXML
-    public Pane pnSignIn;
+    public Label clientName;
     @FXML
-    public Pane pnSignUp;
+    public Pane chat;
     @FXML
-    public Button btnSignUp;
+    public TextField msgField;
     @FXML
-    public Button getStarted;
+    public TextArea msgRoom;
     @FXML
-    public ImageView btnBack;
+    public Label processId;
     @FXML
-    public TextField regFirstName;
+    public Label startTime;
     @FXML
-    public Label controlRegLabel;
+    public Label totalMemory;
     @FXML
-    public Label success;
+    public Pane profile;
     @FXML
-    public Label goBack;
+    public Button profileBtn;
     @FXML
-    public TextField privateKey;
+    public ImageView proImage;
     @FXML
-    public Label loginNotifier;
-    public static String n, d, e, fullName;
-    public static ArrayList<User> loggedInUser = new ArrayList<>();
-    public static ArrayList<User> users = new ArrayList<User>();
-    public Label generatedPublicKey;
-    public Label generatedPrivateKey;
+    public Circle showProPic;
+    public boolean toggleChat = false, toggleProfile = false;
+    public Label memoryUsage;
+    public Label cpuUsage;
+    public Label activeThread;
 
-    public void registration() {
-        if (!regFirstName.getText().equalsIgnoreCase("")) {
-            int [] keys = generateKey();
-            User newUser = new User();
-            newUser.fullName = regFirstName.getText();
-            newUser.n = keys[0];
-            newUser.publicKey = keys[1];
-            newUser.privateKey = keys[2];
-            users.add(newUser);
+    BufferedReader reader;
+    PrintWriter writer;
+    Socket socket;
+    String clientId;
 
-            goBack.setOpacity(1);
-            success.setOpacity(1);
-            generatedPublicKey.setText("Public Key: {" + newUser.publicKey + ", " + newUser.n + "}");
-            generatedPrivateKey.setText("Private Key: {" + newUser.privateKey + ", " + newUser.n + "}");
-            generatedPublicKey.setOpacity(1);
-            generatedPrivateKey.setOpacity(1);
-
-            makeDefault();
-            if (controlRegLabel.getOpacity() == 1) {
-                controlRegLabel.setOpacity(0);
-            }
-        } else {
-            controlRegLabel.setOpacity(1);
-            setOpacity(success, goBack, generatedPublicKey, generatedPrivateKey);
-        }
-    }
-
-    private int[] generateKey(){
-        int p = generateRandomPrimeNumber();
-        int q = generateRandomPrimeNumber();
-        int n = p * q;
-
-        int phiN = (p - 1) * (q - 1);
-        int e = getE(phiN);
-        int d = getD(phiN, e);
-
-        while (!checkKey(n) || e == d || p == q){
-            p = generateRandomPrimeNumber();
-            q = generateRandomPrimeNumber();
-            n = p * q;
-
-            phiN = (p - 1) * (q - 1);
-            e = getE(phiN);
-            d = getD(phiN, e);
-        }
-
-        return new int[]{n, e, d};
-    }
-
-    private int generateRandomPrimeNumber(){
-        Random random = new Random();
-        int prime = random.nextInt(50) + 1;
-
-        while (!isPrime(prime)){
-            prime = random.nextInt(50) + 1;
-        }
-        return prime;
-    }
-
-    private boolean isPrime(int num){
-        if(num <= 1){
-            return false;
-        }
-        for (int i = 2; i < num; i++) {
-            if(num % i == 0){
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private boolean checkKey(int n){
-        for (User user : users){
-            if (user.n == n){
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private int getE(int phiN){
-        int e = 0;
-        for (int i = 2; i < phiN; i++) {
-            if(gcd(i, phiN) == 1){
-                e = i;
-                break;
-            }
-        }
-        return e;
-    }
-
-    private int gcd(int num1, int num2) {
-        if (num2 == 0) {
-            return num1;
-        }
-        return gcd(num2, num1 % num2);
-    }
-
-    private int getD(int phiN, int e){
-        int d = 0;
-        for (int i = 0; i <= phiN; i++) {
-            if(i * e % phiN == 1){
-                d = i;
-                break;
-            }
-        }
-        return d;
-    }
-
-    private void setOpacity(Label a, Label b, Label c, Label d) {
-        if(a.getOpacity() == 1 || b.getOpacity() == 1 || c.getOpacity() == 1 || d.getOpacity() == 1) {
-            a.setOpacity(0);
-            b.setOpacity(0);
-            c.setOpacity(0);
-            d.setOpacity(0);
-        }
-    }
-
-
-    private void setOpacity(Label controlRegLabel) {
-        controlRegLabel.setOpacity(0);
-    }
-
-    private void makeDefault() {
-        regFirstName.setText("");
-        setOpacity(controlRegLabel);
-    }
-
-
-    public void login() {
-        d = privateKey.getText().replaceAll(" ", "").split(",")[0];
-        n = privateKey.getText().replaceAll(" ", "").split(",")[1];
-        boolean login = false;
-        for (User x : users) {
-            if (x.n == Integer.parseInt(n) && x.privateKey == Integer.parseInt(d)) {
-                fullName = x.fullName;
-                e = "" + x.publicKey;
-                login = true;
-                loggedInUser.add(x);
-                System.out.println(x.fullName);
-                break;
-            }
-        }
-        if (login) {
-            changeWindow();
-        } else {
-            loginNotifier.setOpacity(1);
-        }
-    }
-
-    public void changeWindow() {
+    public void connectSocket() {
         try {
-            Stage stage = (Stage) regFirstName.getScene().getWindow();
-            Parent root = FXMLLoader.load(this.getClass().getResource("Room.fxml"));
-            stage.setScene(new Scene(root, 330, 560));
-            stage.setTitle(fullName.split(" ")[0]);
-            stage.setOnCloseRequest(event -> {
-                System.exit(0);
-            });
-            stage.setResizable(false);
-            stage.show();
+            socket = new Socket("localhost", 8889);
+            System.out.println("Socket is connected with server!");
+            reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            writer = new PrintWriter(socket.getOutputStream(), true);
+            clientId = reader.readLine();
+            clientName.setText("Process " + clientId);
+            this.start();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    @FXML
-    private void handleButtonAction(ActionEvent event) {
-        if (event.getSource().equals(btnSignUp)) {
-            new FadeIn(pnSignUp).play();
-            pnSignUp.toFront();
+    @Override
+    public void run() {
+        try {
+            while (true) {
+                String msg = reader.readLine();
+                String[] tokens = msg.split(" ");
+                String cmd = tokens[1];
+                System.out.println(cmd);
+                StringBuilder fulmsg = new StringBuilder();
+                for(int i = 1; i < tokens.length; i++) {
+                    fulmsg.append(tokens[i]);
+                }
+                System.out.println(fulmsg);
+                if (cmd.equalsIgnoreCase( clientId + ":")) {
+                    continue;
+                } else if(fulmsg.toString().equalsIgnoreCase("bye")) {
+                    break;
+                }
+                msgRoom.appendText(msg + "\n");
+            }
+            reader.close();
+            writer.close();
+            socket.close();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        if (event.getSource().equals(getStarted)) {
-            new FadeIn(pnSignIn).play();
-            pnSignIn.toFront();
-        }
-        loginNotifier.setOpacity(0);
-        privateKey.setText("");
     }
 
-    @FXML
-    private void handleMouseEvent(MouseEvent event) {
-        if (event.getSource() == btnBack) {
-            new FadeIn(pnSignIn).play();
-            pnSignIn.toFront();
+
+    public void handleProfileBtn(ActionEvent event) {
+        if (event.getSource().equals(profileBtn) && !toggleProfile) {
+            new FadeIn(profile).play();
+            profile.toFront();
+            chat.toBack();
+            toggleProfile = true;
+            toggleChat = false;
+            profileBtn.setText("Back");
+            setProfile();
+        } else if (event.getSource().equals(profileBtn) && toggleProfile) {
+            new FadeIn(chat).play();
+            chat.toFront();
+            toggleProfile = false;
+            toggleChat = false;
+            profileBtn.setText("Inform");
         }
-        regFirstName.setText("");
+    }
+
+    public void setProfile() {
+        processId.setText(getProcessID());
+        processId.setOpacity(1);
+        startTime.setText(getStartTime());
+        startTime.setOpacity(1);
+        totalMemory.setText(getTotalMemory());
+        totalMemory.setOpacity(1);
+        memoryUsage.setText(getMemoryUsage());
+        memoryUsage.setOpacity(1);
+        cpuUsage.setText(getCpuUsage());
+        cpuUsage.setOpacity(1);
+        activeThread.setText(getActiveThread());
+        activeThread.setOpacity(1);
+    }
+
+    private String getProcessID(){
+        String processName = ManagementFactory.getRuntimeMXBean().getName();
+        long processId = Long.parseLong(processName.split("@")[0]);
+        return processId + "";
+    }
+
+    private String getStartTime(){
+        RuntimeMXBean runtimeMXBean = ManagementFactory.getRuntimeMXBean();
+        long startTime = runtimeMXBean.getStartTime();
+        Date startDate = new Date(startTime);
+        SimpleDateFormat dateFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss yyyy");
+        return dateFormat.format(startDate);
+    }
+
+    private String getTotalMemory(){
+        Runtime runtime = Runtime.getRuntime();
+        long totalMemory = runtime.totalMemory() / (1024 * 1024);
+        return totalMemory + " MB";
+    }
+
+    private String getMemoryUsage(){
+        Runtime runtime = Runtime.getRuntime();
+        long totalMemory = runtime.totalMemory();
+        long freeMemory = runtime.freeMemory();
+        return ((totalMemory - freeMemory) / (1024 * 1024)) + " MB";
+    }
+
+    private String getCpuUsage(){
+        OperatingSystemMXBean osBean = ManagementFactory.getOperatingSystemMXBean();
+        com.sun.management.OperatingSystemMXBean sunOsBean = (com.sun.management.OperatingSystemMXBean) osBean;
+        double cpuUsage = sunOsBean.getProcessCpuLoad();
+        String formattedCpuUsage = String.format("%.2f", cpuUsage * 100);
+        return formattedCpuUsage + "%";
+    }
+
+    private String getActiveThread(){
+        ThreadGroup rootGroup = Thread.currentThread().getThreadGroup();
+        ThreadGroup parentGroup;
+        while ((parentGroup = rootGroup.getParent()) != null) {
+            rootGroup = parentGroup;
+        }
+        int activeThreadCount = rootGroup.activeCount();
+        return activeThreadCount + "";
+    }
+
+    public void handleSendEvent(MouseEvent event) {
+        send();
+    }
+
+
+    public void send() {
+        String msg = msgField.getText();
+
+        if(!msg.isEmpty()){
+            System.out.println("Message: " + msg);
+
+            writer.println("Process " + clientId + ": " + msg);
+            msgRoom.setNodeOrientation(NodeOrientation.LEFT_TO_RIGHT);
+            msgRoom.appendText("Me: " + msg + "\n");
+
+            msgField.setText("");
+            if(msg.equalsIgnoreCase("BYE") || (msg.equalsIgnoreCase("logout"))) {
+                System.exit(0);
+            }
+        }
+    }
+
+    public void sendMessageByKey(KeyEvent event) {
+        if (event.getCode().toString().equals("ENTER")) {
+            send();
+        }
+    }
+
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
+        showProPic.setStroke(Color.valueOf("#90a4ae"));
+        Image image;
+        image = new Image("icons/user.png", false);
+        showProPic.setFill(new ImagePattern(image));
+        clientName.setText("Process " );
+        connectSocket();
     }
 }
