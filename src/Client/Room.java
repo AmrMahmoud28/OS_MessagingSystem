@@ -86,34 +86,20 @@ public class Room extends Thread implements Initializable {
         try {
             while (true) {
                 String msg = reader.readLine();
-                System.out.println("msg: " + msg);
                 String[] tokens = msg.split(" ");
-                String cmd = tokens[0];
-                System.out.println("cmd: " + cmd);
+                String cmd = tokens[1];
                 System.out.println(cmd);
-
                 StringBuilder fulmsg = new StringBuilder();
                 for(int i = 1; i < tokens.length; i++) {
-                    fulmsg.append(tokens[i]).append(" ");
+                    fulmsg.append(tokens[i]);
                 }
-                fulmsg.trimToSize();
-                System.out.println("Full msg: " + fulmsg);
-                String plaintext;
-                if(cmd.contains("_ToEveryone:")){
-                    plaintext = String.valueOf(fulmsg);
-                }
-                else{
-                    plaintext = decrypt(String.valueOf(fulmsg), Integer.parseInt(Controller.d), Integer.parseInt(Controller.n));
-                }
-                System.out.println("Decrypted Full msg: " + plaintext);
                 System.out.println(fulmsg);
-
-                if (cmd.equalsIgnoreCase(Controller.fullName.split(" ")[0] + "{" + Controller.e + "," + Controller.n + "}:") || cmd.equalsIgnoreCase(Controller.fullName.split(" ")[0] + "{" + Controller.e + "," + Controller.n + "}_ToEveryone:")) {
+                if (cmd.equalsIgnoreCase( clientId + ":")) {
                     continue;
                 } else if(fulmsg.toString().equalsIgnoreCase("bye")) {
                     break;
                 }
-                msgRoom.appendText(cmd + " " + plaintext + "\n");
+                msgRoom.appendText(msg + "\n");
             }
             reader.close();
             writer.close();
@@ -216,12 +202,11 @@ public class Room extends Thread implements Initializable {
         if(!msg.isEmpty()){
             System.out.println("Message: " + msg);
 
-            writer.println(Controller.fullName.split(" ")[0] + "{" + Controller.e + "," + Controller.n + "}_ToEveryone: " + msg);
+            writer.println("Process " + clientId + ": " + msg);
             msgRoom.setNodeOrientation(NodeOrientation.LEFT_TO_RIGHT);
             msgRoom.appendText("Me: " + msg + "\n");
 
             msgField.setText("");
-            keyField.setText("");
             if(msg.equalsIgnoreCase("BYE") || (msg.equalsIgnoreCase("logout"))) {
                 System.exit(0);
             }
