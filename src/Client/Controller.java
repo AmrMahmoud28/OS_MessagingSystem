@@ -7,7 +7,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
-import Server.ClientHandler;
 import animatefx.animation.FadeIn;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -19,6 +18,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
@@ -244,6 +244,9 @@ public class Controller extends Thread implements Initializable {
     public void sendMessageByKey(KeyEvent event) {
         if (event.getCode().toString().equals("ENTER")) {
             send();
+        }
+        else if (event.isControlDown() && event.getCode() == KeyCode.Z) {
+            handleUndoEvent(null);
         }
     }
 
