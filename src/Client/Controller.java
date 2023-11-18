@@ -4,7 +4,10 @@ import java.lang.management.ManagementFactory;
 import java.lang.management.OperatingSystemMXBean;
 import java.lang.management.RuntimeMXBean;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+
+import Server.ClientHandler;
 import animatefx.animation.FadeIn;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -60,6 +63,8 @@ public class Controller extends Thread implements Initializable {
     PrintWriter writer;
     Socket socket;
     String clientId;
+    ArrayList<String> msgArray = new ArrayList<>();
+    ArrayList<Integer> lastMessageIndexes = new ArrayList<>();
 
     public void connectSocket() {
         try {
@@ -81,19 +86,28 @@ public class Controller extends Thread implements Initializable {
             while (true) {
                 String msg = reader.readLine();
                 String[] tokens = msg.split(" ");
-                String cmd = tokens[1];
-                System.out.println(cmd);
-                StringBuilder fulmsg = new StringBuilder();
-                for(int i = 1; i < tokens.length; i++) {
-                    fulmsg.append(tokens[i]);
-                }
-                System.out.println(fulmsg);
-                if (cmd.equalsIgnoreCase( clientId + ":")) {
+
+                if(tokens[1].equalsIgnoreCase("undo")){
+                    undo(Integer.parseInt(tokens[2]), tokens[0]);
                     continue;
-                } else if(fulmsg.toString().equalsIgnoreCase("bye")) {
+                }
+
+                String senderId = tokens[1];
+                System.out.println(senderId);
+                StringBuilder fullMsg = new StringBuilder();
+                for(int i = 1; i < tokens.length; i++) {
+                    fullMsg.append(tokens[i]);
+                }
+                System.out.println(fullMsg);
+                if (senderId.equalsIgnoreCase( clientId + ":")) {
+                    lastMessageIndexes.add(msgArray.isEmpty() ? 1 : msgArray.size());
+                    continue;
+                }
+                else if(fullMsg.toString().equalsIgnoreCase("bye")) {
                     break;
                 }
                 msgRoom.appendText(msg + "\n");
+                msgArray.add(msg + "\n");
             }
             reader.close();
             writer.close();
@@ -188,6 +202,12 @@ public class Controller extends Thread implements Initializable {
 
 
     public void send() {
+        if(!lastMessageIndexes.isEmpty() && msgField.getText().equalsIgnoreCase("undo") ){
+            writer.println(clientId + " undo " + (lastMessageIndexes.get(lastMessageIndexes.size() - 1)));
+            msgField.setText("");
+            return;
+        }
+
         String msg = msgField.getText();
 
         if(!msg.isEmpty()){
@@ -196,11 +216,24 @@ public class Controller extends Thread implements Initializable {
             writer.println("Process " + clientId + ": " + msg);
             msgRoom.setNodeOrientation(NodeOrientation.LEFT_TO_RIGHT);
             msgRoom.appendText("Me: " + msg + "\n");
+            msgArray.add("Me: " + msg + "\n");
 
             msgField.setText("");
             if(msg.equalsIgnoreCase("BYE") || (msg.equalsIgnoreCase("logout"))) {
                 System.exit(0);
             }
+        }
+    }
+
+    public void undo(int lastMessageIndex, String senderId){
+        System.out.println(lastMessageIndex);
+        msgArray.set(lastMessageIndex - 1, "");
+        msgRoom.setText("");
+        if(senderId.equalsIgnoreCase(clientId)) {
+            lastMessageIndexes.remove(lastMessageIndexes.size() - 1);
+        }
+        for (String i : msgArray) {
+            msgRoom.appendText(i);
         }
     }
 
