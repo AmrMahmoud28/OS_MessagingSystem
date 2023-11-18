@@ -117,6 +117,11 @@
                         <Font name="Arial" size="20.0" />
                     </font>
                 </Label>
+                <ImageView fx:id="undoIcon" fitHeight="30.0" fitWidth="73.0" layoutX="217.0" layoutY="21.0" onMouseClicked="#handleUndoEvent" pickOnBounds="true" preserveRatio="true">
+                    <image>
+                        <Image url="@../icons/undo.png" />
+                    </image>
+                </ImageView>
                 <Button fx:id="profileBtn" layoutX="257.0" layoutY="21.0" mnemonicParsing="false" onAction="#handleProfileBtn" styleClass="allButton" stylesheets="@../Css/style.css" text="Inform">
                     <font>
                         <Font name="Arial" size="15.0" />

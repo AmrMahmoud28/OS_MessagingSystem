@@ -58,6 +58,7 @@ public class Controller extends Thread implements Initializable {
     public Label memoryUsage;
     public Label cpuUsage;
     public Label activeThread;
+    public ImageView undoIcon;
 
     BufferedReader reader;
     PrintWriter writer;
@@ -126,6 +127,7 @@ public class Controller extends Thread implements Initializable {
             toggleProfile = true;
             toggleChat = false;
             profileBtn.setText("Back");
+            undoIcon.setOpacity(0);
             setProfile();
         } else if (event.getSource().equals(profileBtn) && toggleProfile) {
             new FadeIn(chat).play();
@@ -133,6 +135,7 @@ public class Controller extends Thread implements Initializable {
             toggleProfile = false;
             toggleChat = false;
             profileBtn.setText("Inform");
+            undoIcon.setOpacity(1);
         }
     }
 
@@ -202,12 +205,6 @@ public class Controller extends Thread implements Initializable {
 
 
     public void send() {
-        if(!lastMessageIndexes.isEmpty() && msgField.getText().equalsIgnoreCase("undo") ){
-            writer.println(clientId + " undo " + (lastMessageIndexes.get(lastMessageIndexes.size() - 1)));
-            msgField.setText("");
-            return;
-        }
-
         String msg = msgField.getText();
 
         if(!msg.isEmpty()){
@@ -222,6 +219,13 @@ public class Controller extends Thread implements Initializable {
             if(msg.equalsIgnoreCase("BYE") || (msg.equalsIgnoreCase("logout"))) {
                 System.exit(0);
             }
+        }
+    }
+
+    public void handleUndoEvent(MouseEvent event) {
+        if(!lastMessageIndexes.isEmpty()) {
+            writer.println(clientId + " undo " + (lastMessageIndexes.get(lastMessageIndexes.size() - 1)));
+            msgField.setText("");
         }
     }
 
