@@ -101,7 +101,6 @@ public class Controller extends Thread implements Initializable {
                 }
                 System.out.println(fullMsg);
                 if (senderId.equalsIgnoreCase( clientId + ":")) {
-                    lastMessageIndexes.add(msgArray.isEmpty() ? 1 : msgArray.size());
                     continue;
                 }
                 else if(fullMsg.toString().equalsIgnoreCase("bye")) {
@@ -203,7 +202,6 @@ public class Controller extends Thread implements Initializable {
         send();
     }
 
-
     public void send() {
         String msg = msgField.getText();
 
@@ -214,6 +212,7 @@ public class Controller extends Thread implements Initializable {
             msgRoom.setNodeOrientation(NodeOrientation.LEFT_TO_RIGHT);
             msgRoom.appendText("Me: " + msg + "\n");
             msgArray.add("Me: " + msg + "\n");
+            lastMessageIndexes.add(msgArray.size());
 
             msgField.setText("");
             if(msg.equalsIgnoreCase("BYE") || (msg.equalsIgnoreCase("logout"))) {
@@ -230,7 +229,6 @@ public class Controller extends Thread implements Initializable {
     }
 
     public void undo(int lastMessageIndex, String senderId){
-        System.out.println(lastMessageIndex);
         msgArray.set(lastMessageIndex - 1, "");
         msgRoom.setText("");
         if(senderId.equalsIgnoreCase(clientId)) {
