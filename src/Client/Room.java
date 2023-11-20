@@ -31,7 +31,7 @@ import java.net.Socket;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-public class Controller extends Thread implements Initializable {
+public class Room extends Thread implements Initializable {
     @FXML
     public Label clientName;
     @FXML
